@@ -4,12 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.rain.customcheckbox.MainActivity"
-    android:background="#0c2121">
+    android:background="#0c2121"
+    tools:context="com.rain.customcheckbox.MainActivity">
 
     <com.rain.customcheckbox.views.CustomCheckBox
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_centerInParent="true"/>
+        android:id="@+id/checkbox1"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        app:check_line_width="3dp"
+        app:circle_color_after="#04a8fa"
+        app:circle_line_width="5dp" />
 
+    <com.rain.customcheckbox.views.CustomCheckBox
+        android:id="@+id/checkbox2"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/checkbox1"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10dp"
+        app:check_line_width="5dp"
+        app:circle_color="#7c28a3"
+        app:circle_color_after="#f40c9b"
+        app:circle_line_width="5dp" />
+
+    <com.rain.customcheckbox.views.CustomCheckBox
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_below="@id/checkbox2"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10dp"
+        app:check_line_width="15dp"
+        app:circle_color="#7c28a3"
+        app:circle_color_after="#f40c9b"
+        app:circle_line_width="20dp"
+
+        />
 </RelativeLayout>

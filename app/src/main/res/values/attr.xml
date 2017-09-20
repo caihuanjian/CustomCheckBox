@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomCheckBox">
+        <attr name="check_line_width" format="dimension"></attr>
+        <attr name="circle_line_width" format="dimension"></attr>
+        <attr name="check_color" format="color|reference"></attr>
+        <attr name="circle_color" format="color|reference"></attr>
+        <attr name="circle_color_after" format="color|reference"></attr>
+    </declare-styleable>
+</resources>

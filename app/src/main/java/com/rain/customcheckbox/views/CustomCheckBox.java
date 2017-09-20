@@ -2,6 +2,7 @@ package com.rain.customcheckbox.views;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,13 +16,15 @@ import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
+import com.rain.customcheckbox.R;
+
 /**
  * Created by HwanJ.Choi on 2017-9-20.
  */
 
 public class CustomCheckBox extends View implements View.OnClickListener {
 
-    private static final int DURATION_CHECK = 200;
+    private static final int DURATION_CHECK = 180;
 
     private static final int DEFULT_CHECK_COLOR = Color.WHITE;
     private static final int DEFULT_CIRCLE_COLOR = Color.parseColor("#367eae");
@@ -34,12 +37,17 @@ public class CustomCheckBox extends View implements View.OnClickListener {
     private Path mCheckPathDst;
     private PathMeasure mCheckPathMeasure;
 
-    private int mCicleColor = DEFULT_CIRCLE_COLOR;
-    private int mCheckColor = DEFULT_CHECK_COLOR;
+    private int mStartCircleColor;
+    private int mEndCircleColor;
+
+    private int mCheckColor;
 
     private int mRadius;
     private int mCenterX;
     private int mCenterY;
+
+    private int mCircleLineWidth;
+    private int mCheckLineWidth;
 
     private boolean isCheck;
     private boolean isAnim;
@@ -58,6 +66,13 @@ public class CustomCheckBox extends View implements View.OnClickListener {
 
     public CustomCheckBox(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.CustomCheckBox);
+        mCheckColor = ta.getColor(R.styleable.CustomCheckBox_check_color, DEFULT_CHECK_COLOR);
+        mStartCircleColor = ta.getColor(R.styleable.CustomCheckBox_circle_color, DEFULT_CIRCLE_COLOR);
+        mEndCircleColor = ta.getColor(R.styleable.CustomCheckBox_circle_color_after, mStartCircleColor);
+        mCircleLineWidth = ta.getDimensionPixelSize(R.styleable.CustomCheckBox_circle_line_width, (int) dpToPx(DEFULT_CIRCLE_LINE_WIDTH));
+        mCheckLineWidth = ta.getDimensionPixelSize(R.styleable.CustomCheckBox_check_line_width, (int) dpToPx(DEFULT_CHECK_LINE_WIDTH));
+        ta.recycle();
         init();
         setOnClickListener(this);
     }
@@ -74,9 +89,9 @@ public class CustomCheckBox extends View implements View.OnClickListener {
 
         mCheckPaint.setColor(mCheckColor);
         mCheckPaint.setStyle(Paint.Style.STROKE);
-        mCheckPaint.setStrokeWidth(dpToPx(DEFULT_CHECK_LINE_WIDTH));
+        mCheckPaint.setStrokeWidth(mCheckLineWidth);
 
-        mCiclePaint.setColor(mCicleColor);
+        mCiclePaint.setColor(mStartCircleColor);
         mCiclePaint.setStyle(Paint.Style.FILL);
         mInterpolator = new LinearInterpolator();
         mCheckPathDst = new Path();
@@ -93,7 +108,8 @@ public class CustomCheckBox extends View implements View.OnClickListener {
         canvas.save();
         Path path = new Path();
         path.addCircle(mCenterX, mCenterY, mRadius, Path.Direction.CW);
-        path.addCircle(mCenterX, mCenterX, (mRadius - DEFULT_CIRCLE_LINE_WIDTH) * mCircleAnimValue, Path.Direction.CCW);
+        path.addCircle(mCenterX, mCenterX, (mRadius - mCircleLineWidth) * mCircleAnimValue, Path.Direction.CCW);
+        mCiclePaint.setColor(evaluate((1 - mCircleAnimValue), mStartCircleColor, mEndCircleColor));
         canvas.drawPath(path, mCiclePaint);
         canvas.restoreToCount(saveCount);
     }
@@ -105,6 +121,27 @@ public class CustomCheckBox extends View implements View.OnClickListener {
         mCheckPathMeasure.getSegment(0, mCheckPathMeasure.getLength() * mCorrectAnimValue, mCheckPathDst, true);
         canvas.drawPath(mCheckPathDst, mCheckPaint);
         canvas.restoreToCount(saveCount);
+    }
+
+    private int evaluate(float fraction, int startValue, int endValue) {
+        if (startValue == endValue) {
+            return startValue;
+        }
+        if (fraction <= 0) {
+            return startValue;
+        }
+        if (fraction >= 1) {
+            return endValue;
+        }
+        float[] hsvStart = new float[3];
+        float[] hsvEnd = new float[3];
+        float[] result = new float[3];
+        Color.colorToHSV(startValue, hsvStart);
+        Color.colorToHSV(endValue, hsvEnd);
+        for (int i = 0; i < hsvStart.length; i++) {
+            result[i] = hsvStart[i] + (hsvEnd[i] - hsvStart[i]) * fraction;
+        }
+        return Color.HSVToColor(result);
     }
 
     @Override
@@ -123,14 +160,14 @@ public class CustomCheckBox extends View implements View.OnClickListener {
         mCenterY = mRadius;
 
         float[] points = new float[6];
-        points[0] = mRadius / 2f + getPaddingLeft();
-        points[1] = mRadius + getPaddingTop();
+        points[0] = mRadius / 2f;
+        points[1] = mRadius;
 
-        points[2] = mRadius * 5f / 6f + getPaddingLeft();
-        points[3] = mRadius + mRadius / 3f + getPaddingTop();
+        points[2] = mRadius * 5f / 6f;
+        points[3] = mRadius + mRadius / 3f;
 
-        points[4] = mRadius * 1.5f + getPaddingLeft();
-        points[5] = mRadius - mRadius / 3f + getPaddingTop();
+        points[4] = mRadius * 1.5f;
+        points[5] = mRadius - mRadius / 3f;
 
         Path path = new Path();
         path.moveTo(points[0], points[1]);
@@ -219,11 +256,15 @@ public class CustomCheckBox extends View implements View.OnClickListener {
 
     private onCheckChangedListener mCheckListener;
 
-    interface onCheckChangedListener {
+    public interface onCheckChangedListener {
         void onCheckChange(CustomCheckBox checkBox, boolean isChecked);
     }
 
     public void setOnCheckChangedListener(onCheckChangedListener listener) {
         mCheckListener = listener;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
     }
 }
