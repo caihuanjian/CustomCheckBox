@@ -1,5 +1,5 @@
 # CustomCheckBox
-![gif](https://github.com/caihuanjian/CustomCheckBox/tree/master/art/CheckBox.gif)
+![gif](https://github.com/caihuanjian/CustomCheckBox/blob/master/art/CheckBox.gif)
 ## Usage
 ```xml
 <com.rain.customcheckbox.views.CustomCheckBox
